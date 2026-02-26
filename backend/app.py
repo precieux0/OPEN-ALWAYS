@@ -1,3 +1,4 @@
+# coding: utf-8  # Petit changement pour Git
 from flask import Flask, request, jsonify, render_template, Response
 from flask_login import LoginManager, login_required, current_user
 import requests
