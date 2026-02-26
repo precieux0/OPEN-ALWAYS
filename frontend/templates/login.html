@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Open Always</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .auth-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo h1 {
+            color: #2563EB;
+            font-size: 2rem;
+        }
+        
+        .logo p {
+            color: #6B7280;
+            margin-top: 0.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #E5E7EB;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6B7280;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #2563EB;
+            border-bottom: 2px solid #2563EB;
+            margin-bottom: -2px;
+        }
+        
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #E5E7EB;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #2563EB;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1E40AF;
+        }
+        
+        .btn-google {
+            background: white;
+            color: #374151;
+            border: 2px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-google:hover {
+            background: #F9FAFB;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            position: relative;
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 45%;
+            height: 1px;
+            background: #E5E7EB;
+        }
+        
+        .divider::before {
+            left: 0;
+        }
+        
+        .divider::after {
+            right: 0;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 1rem;
+            color: #6B7280;
+            font-size: 0.9rem;
+        }
+        
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        
+        .message.error {
+            background: #FEE2E2;
+            color: #DC2626;
+            display: block;
+            border: 1px solid #FCA5A5;
+        }
+        
+        .message.success {
+            background: #D1FAE5;
+            color: #059669;
+            display: block;
+            border: 1px solid #6EE7B7;
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+        
+        .forgot-password a {
+            color: #6B7280;
+            text-decoration: none;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .forgot-password a:hover {
+            color: #2563EB;
+        }
+        
+        .turnstile-container {
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: center;
+            min-height: 65px;
+        }
+        
+        .otp-section {
+            display: none;
+            text-align: center;
+        }
+        
+        .otp-section.active {
+            display: block;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .back-link a {
+            color: #6B7280;
+            text-decoration: none;
+        }
+        
+        .back-link a:hover {
+            color: #2563EB;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container" id="authContainer">
+        <div class="logo">
+            <h1>Open Always</h1>
+            <p>Bienvenue sur la plateforme IA</p>
+        </div>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('login')">Connexion</div>
+            <div class="tab" onclick="switchTab('register')">Inscription</div>
+        </div>
+        
+        <!-- Formulaire de connexion -->
+        <div id="login-form" class="form-container active">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                
+                <div class="forgot-password">
+                    <a onclick="showForgotPassword(event)">Mot de passe oublié ?</a>
+                </div>
+                
+                <button type="submit" class="btn" id="loginBtn">Se connecter</button>
+            </form>
+            
+            <div class="divider">
+                <span>ou</span>
+            </div>
+            
+            <button class="btn btn-google" onclick="window.location.href='/auth/google-login'">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='20' height='20'%3E%3Cpath d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z' fill='%234285F4'/%3E%3Cpath d='M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z' fill='%2334A853'/%3E%3Cpath d='M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z' fill='%23FBBC05'/%3E%3Cpath d='M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z' fill='%23EA4335'/%3E%3C/svg%3E" alt="Google">
+                Continuer avec Google
+            </button>
+        </div>
+        
+        <!-- Formulaire d'inscription -->
+        <div id="register-form" class="form-container">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="register-username">Nom d'utilisateur</label>
+                    <input type="text" id="register-username" required minlength="3">
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-password">Mot de passe</label>
+                    <input type="password" id="register-password" required minlength="6">
+                </div>
+                
+                <div class="turnstile-container">
+                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAA3XvBznRZjY8qIY" data-callback="onTurnstileSuccess"></div>
+                </div>
+                
+                <button type="submit" class="btn" id="registerBtn">S'inscrire</button>
+            </form>
+        </div>
+        
+        <div class="back-link">
+            <a href="/">← Retour à l'accueil</a>
+        </div>
+    </div>
+    
+    <!-- Section OTP (séparée du conteneur principal) -->
+    <div id="otp-section" class="otp-section" style="display: none; background: white; border-radius: 12px; padding: 2rem; max-width: 450px; margin: 0 auto;">
+        <h3 style="margin-bottom: 1rem; color: #2563EB;">📧 Vérification email</h3>
+        <p style="margin-bottom: 1rem; color: #6B7280;">
+            Un code de vérification a été envoyé à <strong id="otp-email"></strong>
+        </p>
+        <form onsubmit="handleVerifyOTP(event)">
+            <div class="form-group">
+                <label for="otp-code">Code OTP</label>
+                <input type="text" id="otp-code" placeholder="Ex: 4F2A8B1C" required maxlength="8" style="text-transform: uppercase;">
+            </div>
+            <button type="submit" class="btn" id="verifyBtn">Vérifier</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="#" onclick="showLoginForm()">← Retour à la connexion</a>
+        </div>
+    </div>
+    
+    <!-- Section reset password -->
+    <div id="reset-section" class="otp-section" style="display: none; background: white; border-radius: 12px; padding: 2rem; max-width: 450px; margin: 0 auto;">
+        <h3 style="margin-bottom: 1rem; color: #2563EB;">🔑 Réinitialiser le mot de passe</h3>
+        <form onsubmit="handleResetPassword(event)">
+            <div class="form-group">
+                <label for="reset-email">Email</label>
+                <input type="email" id="reset-email" required>
+            </div>
+            <button type="submit" class="btn" id="resetBtn">Envoyer le code</button>
+        </form>
+        <div style="text-align: center; margin-top: 1rem;">
+            <a href="#" onclick="showLoginForm()">← Retour à la connexion</a>
+        </div>
+    </div>
+    
+    <script>
+        let currentEmail = '';
+        let turnstileToken = '';
+        
+        function showMessage(text, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = text;
+            msgDiv.className = `message ${type}`;
+            msgDiv.style.display = 'block';
+            
+            // Auto-cacher après 5 secondes
+            setTimeout(() => {
+                msgDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('login-form').classList.add('active');
+            } else {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('register-form').classList.add('active');
+            }
+            
+            // Cacher les messages
+            document.getElementById('message').style.display = 'none';
+        }
+        
+        function onTurnstileSuccess(token) {
+            turnstileToken = token;
+        }
+        
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            
+            // Récupérer le token Turnstile
+            turnstileToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            
+            if (!turnstileToken) {
+                showMessage('Veuillez compléter le captcha', 'error');
+                return;
+            }
+            
+            // Désactiver le bouton
+            const registerBtn = document.getElementById('registerBtn');
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Inscription en cours...';
+            
+            try {
+                const response = await fetch('/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password,
+                        turnstile_token: turnstileToken
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    currentEmail = email;
+                    document.getElementById('otp-email').textContent = email;
+                    
+                    // Cacher le conteneur principal et montrer OTP
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('otp-section').style.display = 'block';
+                    
+                    showMessage('Inscription réussie ! Vérifiez vos emails', 'success');
+                } else {
+                    showMessage(data.error || 'Erreur lors de l\'inscription', 'error');
+                    registerBtn.disabled = false;
+                    registerBtn.textContent = 'S\'inscrire';
+                    
+                    // Réinitialiser Turnstile
+                    turnstile.reset();
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion au serveur', 'error');
+                registerBtn.disabled = false;
+                registerBtn.textContent = 'S\'inscrire';
+            }
+        }
+        
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Désactiver le bouton
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Connexion en cours...';
+            
+            try {
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('api_key', data.api_key);
+                    showMessage('Connexion réussie ! Redirection...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showMessage(data.error || 'Email ou mot de passe incorrect', 'error');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Se connecter';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion au serveur', 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Se connecter';
+            }
+        }
+        
+        async function handleVerifyOTP(event) {
+            event.preventDefault();
+            
+            const code = document.getElementById('otp-code').value;
+            
+            // Désactiver le bouton
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.textContent = 'Vérification...';
+            
+            try {
+                const response = await fetch('/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: currentEmail,
+                        code: code
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Email vérifié ! Vous pouvez maintenant vous connecter', 'success');
+                    setTimeout(() => {
+                        showLoginForm();
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Code invalide', 'error');
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = 'Vérifier';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de vérification', 'error');
+                verifyBtn.disabled = false;
+                verifyBtn.textContent = 'Vérifier';
+            }
+        }
+        
+        function showForgotPassword(event) {
+            event.preventDefault();
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('reset-section').style.display = 'block';
+        }
+        
+        async function handleResetPassword(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('reset-email').value;
+            
+            // Désactiver le bouton
+            const resetBtn = document.getElementById('resetBtn');
+            resetBtn.disabled = true;
+            resetBtn.textContent = 'Envoi en cours...';
+            
+            try {
+                const response = await fetch('/auth/forgot-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('Code envoyé ! Vérifiez vos emails', 'success');
+                    setTimeout(() => {
+                        showLoginForm();
+                    }, 2000);
+                } else {
+                    showMessage(data.error || 'Email non trouvé', 'error');
+                    resetBtn.disabled = false;
+                    resetBtn.textContent = 'Envoyer le code';
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                showMessage('Erreur de connexion', 'error');
+                resetBtn.disabled = false;
+                resetBtn.textContent = 'Envoyer le code';
+            }
+        }
+        
+        function showLoginForm() {
+            document.getElementById('otp-section').style.display = 'none';
+            document.getElementById('reset-section').style.display = 'none';
+            document.getElementById('authContainer').style.display = 'block';
+            switchTab('login');
+            
+            // Réinitialiser les formulaires
+            document.getElementById('register-form').reset();
+            document.getElementById('login-form').reset();
+            document.getElementById('otp-code').value = '';
+            document.getElementById('reset-email').value = '';
+            
+            // Réactiver les boutons
+            document.getElementById('registerBtn').disabled = false;
+            document.getElementById('registerBtn').textContent = 'S\'inscrire';
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').textContent = 'Se connecter';
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Vérifier si l'utilisateur est déjà connecté
+            const apiKey = localStorage.getItem('api_key');
+            if (apiKey && window.location.pathname === '/login') {
+                // Rediriger vers dashboard si déjà connecté
+                window.location.href = '/dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

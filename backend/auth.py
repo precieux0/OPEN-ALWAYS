@@ -6,7 +6,9 @@ from datetime import datetime, timedelta
 import secrets
 import requests
 from authlib.integrations.flask_client import OAuth
-from .models import db, User, OTPCode
+
+# ✅ IMPORTANT: Ajouter APIKey ici
+from .models import db, User, OTPCode, APIKey
 from .config import Config
 
 auth_bp = Blueprint('auth', __name__)
@@ -45,6 +47,9 @@ def send_otp_email(email, code, purpose):
         msg.body = f"Pour réinitialiser votre mot de passe, utilisez ce code : {code}"
     mail.send(msg)
 
+# ============================================
+# INSCRIPTION (avec initialisation des clés)
+# ============================================
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.json
@@ -64,7 +69,15 @@ def register():
         password_hash=generate_password_hash(data['password'])
     )
     db.session.add(user)
-    db.session.commit()
+    db.session.flush()  # Pour obtenir l'ID de l'utilisateur
+    
+    # ✅ AJOUT : Enregistrer la première clé dans l'historique
+    first_key = APIKey(
+        user_id=user.id,
+        key=user.api_key,  # La clé générée automatiquement
+        is_active=True
+    )
+    db.session.add(first_key)
     
     # Générer OTP
     otp = secrets.token_hex(4).upper()
@@ -75,6 +88,7 @@ def register():
         expires_at=datetime.utcnow() + timedelta(minutes=10)
     )
     db.session.add(otp_code)
+    
     db.session.commit()
     
     # Envoyer email
@@ -109,6 +123,9 @@ def verify_email():
     
     return jsonify({'message': 'Email vérifié avec succès'})
 
+# ============================================
+# CONNEXION
+# ============================================
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -127,6 +144,9 @@ def login():
         'username': user.username
     })
 
+# ============================================
+# CONNEXION GOOGLE (avec initialisation des clés)
+# ============================================
 @auth_bp.route('/google-login')
 def google_login():
     redirect_uri = url_for('auth.google_callback', _external=True)
@@ -140,7 +160,7 @@ def google_callback():
     user = User.query.filter_by(google_id=userinfo['sub']).first()
     
     if not user:
-        # Créer un nouvel utilisateur
+        # ✅ Créer un nouvel utilisateur
         user = User(
             email=userinfo['email'],
             username=userinfo['email'].split('@')[0],
@@ -148,11 +168,23 @@ def google_callback():
             is_verified=True
         )
         db.session.add(user)
+        db.session.flush()  # Pour obtenir l'ID
+        
+        # ✅ AJOUT : Enregistrer la première clé dans l'historique
+        first_key = APIKey(
+            user_id=user.id,
+            key=user.api_key,
+            is_active=True
+        )
+        db.session.add(first_key)
         db.session.commit()
     
     login_user(user)
     return redirect(url_for('dashboard'))
 
+# ============================================
+# MOT DE PASSE OUBLIÉ
+# ============================================
 @auth_bp.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.json
@@ -201,6 +233,9 @@ def reset_password():
     
     return jsonify({'message': 'Mot de passe réinitialisé avec succès'})
 
+# ============================================
+# DÉCONNEXION
+# ============================================
 @auth_bp.route('/logout')
 @login_required
 def logout():
