@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Always - API Gateway</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        .header { background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%); color: white; padding: 2rem; }
+        .logo { display: flex; align-items: center; gap: 1rem; }
+        .logo img { height: 60px; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .models-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+        .model-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .model-card h3 { color: #2563EB; margin-bottom: 0.5rem; }
+        .chat-container { background: white; border-radius: 12px; padding: 1.5rem; margin: 2rem 0; }
+        .messages { height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .message { margin-bottom: 1rem; padding: 0.75rem; border-radius: 8px; }
+        .user-message { background: #EFF6FF; margin-left: 20%; }
+        .ai-message { background: #F3F4F6; margin-right: 20%; }
+        .input-area { display: flex; gap: 0.5rem; }
+        input, select, button { padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; font-size: 1rem; }
+        input { flex: 1; }
+        button { background: #2563EB; color: white; border: none; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #1E40AF; }
+        .faq-section { background: white; border-radius: 12px; padding: 2rem; margin: 2rem 0; }
+        .faq-item { margin-bottom: 1.5rem; }
+        .faq-question { font-weight: bold; color: #2563EB; cursor: pointer; }
+        .faq-answer { margin-top: 0.5rem; padding-left: 1rem; border-left: 3px solid #2563EB; }
+        .footer { text-align: center; padding: 2rem; background: #1f2937; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="/static/images/logo.svg" alt="Open Always Logo">
+                <div>
+                    <h1>Open Always</h1>
+                    <p>Gateway vers les meilleurs modèles d'IA</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="models-grid">
+            <div class="model-card">
+                <h3>🦙 Llama 3.1</h3>
+                <p>Par Meta - Open source</p>
+                <small>70B paramètres</small>
+            </div>
+            <div class="model-card">
+                <h3>🤖 GPT-4</h3>
+                <p>Par OpenAI - Premium</p>
+                <small>1M tokens contexte</small>
+            </div>
+            <div class="model-card">
+                <h3>✨ Gemini Pro</h3>
+                <p>Par Google - Multimodal</p>
+                <small>Vision & Texte</small>
+            </div>
+            <div class="model-card">
+                <h3>🚀 Okitakoy AI</h3>
+                <p>Par Précieux Okitakoy</p>
+                <small>Notre modèle exclusif</small>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <h2>💬 Chat avec l'IA</h2>
+            <div class="messages" id="messages">
+                <div class="message ai-message">
+                    Bonjour ! Je suis Okitakoy AI. Comment puis-je vous aider aujourd'hui ?
+                </div>
+            </div>
+            <div class="input-area">
+                <select id="model-select">
+                    <option value="okitakoy">Okitakoy AI (Gratuit)</option>
+                    <option value="llama">Llama 3.1 (Gratuit)</option>
+                    <option value="gpt4">GPT-4 (Premium)</option>
+                    <option value="gemini">Gemini Pro (Premium)</option>
+                </select>
+                <input type="text" id="message-input" placeholder="Votre message...">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
+
+        <div class="faq-section">
+            <h2>❓ Foire Aux Questions</h2>
+            <div class="faq-item">
+                <div class="faq-question">🤔 Qui a créé Open Always ?</div>
+                <div class="faq-answer">
+                    Open Always a été créé par <strong>Précieux Okitakoy</strong>, un jeune ingénieur talentueux 
+                    passionné par l'IA et les technologies open source. Précieux est le fondateur de Okitakoy Inc., 
+                    une entreprise innovante dédiée à rendre l'IA accessible à tous.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">🔑 Comment obtenir une clé API ?</div>
+                <div class="faq-answer">
+                    Créez un compte gratuitement ! Vous recevrez automatiquement une clé API unique 
+                    qui vous permettra d'accéder à tous nos modèles.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">💰 Combien ça coûte ?</div>
+                <div class="faq-answer">
+                    Nous offrons un niveau gratuit généreux. Les modèles premium (GPT-4, Gemini) 
+                    sont disponibles avec des crédits payants. Okitakoy AI et Llama restent gratuits !
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Open Always © 2025 - Créé par Précieux Okitakoy (Okitakoy Inc.)</p>
+        <p>🚀 Démocratiser l'IA pour tous</p>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const message = document.getElementById('message-input').value;
+            const model = document.getElementById('model-select').value;
+            
+            if (!message) return;
+            
+            // Afficher message utilisateur
+            const messagesDiv = document.getElementById('messages');
+            messagesDiv.innerHTML += `<div class="message user-message">${message}</div>`;
+            
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ model, message })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messagesDiv.innerHTML += `<div class="message ai-message"><strong>${data.model_name}:</strong> ${data.response}</div>`;
+                } else {
+                    messagesDiv.innerHTML += `<div class="message ai-message" style="background: #FEE2E2;">Erreur: ${data.error}</div>`;
+                }
+            } catch (error) {
+                messagesDiv.innerHTML += `<div class="message ai-message" style="background: #FEE2E2;">Erreur de connexion</div>`;
+            }
+            
+            document.getElementById('message-input').value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

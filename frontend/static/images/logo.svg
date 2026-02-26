@@ -1,0 +1,167 @@
+from flask import Flask, request, jsonify, render_template
+from flask_login import LoginManager, login_required, current_user
+import requests
+import os
+from datetime import datetime
+from .models import db, User, APIUsage
+from .auth import auth_bp, mail, oauth
+from .config import Config
+
+app = Flask(__name__, 
+            static_folder='../frontend/static',
+            template_folder='../frontend/templates')
+app.config.from_object(Config)
+
+# Initialisations
+db.init_app(app)
+mail.init_app(app)
+oauth.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+# Blueprints
+app.register_blueprint(auth_bp, url_prefix='/auth')
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Modèles disponibles
+MODELS = {
+    'llama': {
+        'name': 'Llama 3.1',
+        'provider': 'Meta',
+        'endpoint': f"{Config.OKITAKOY_API_URL}/ask",
+        'system_name': 'Llama AI'
+    },
+    'gpt4': {
+        'name': 'GPT-4',
+        'provider': 'OpenAI',
+        'endpoint': 'https://api.openai.com/v1/chat/completions',
+        'system_name': 'GPT-4'
+    },
+    'gemini': {
+        'name': 'Gemini Pro',
+        'provider': 'Google',
+        'endpoint': 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent',
+        'system_name': 'Gemini'
+    },
+    'okitakoy': {
+        'name': 'Okitakoy AI',
+        'provider': 'Okitakoy Inc.',
+        'endpoint': Config.OKITAKOY_API_URL + '/ask',
+        'system_name': 'Okitakoy AI'
+    }
+}
+
+@app.route('/')
+def index():
+    return render_template('index.html', models=MODELS)
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html', creator='Précieux Okitakoy')
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html', user=current_user)
+
+@app.route('/api/chat', methods=['POST'])
+@login_required
+def chat():
+    data = request.json
+    model = data.get('model', 'okitakoy')
+    message = data.get('message')
+    
+    if model not in MODELS:
+        return jsonify({'error': 'Modèle non supporté'}), 400
+    
+    model_config = MODELS[model]
+    
+    try:
+        # Appel à l'API selon le modèle
+        if model == 'okitakoy' or model == 'llama':
+            # Via ton API
+            response = requests.get(
+                model_config['endpoint'],
+                params={'text': message}
+            )
+            result = response.json()
+            ai_response = result.get('response', '')
+            
+        elif model == 'gpt4':
+            # OpenAI
+            headers = {
+                'Authorization': f"Bearer {Config.OPENAI_API_KEY}",
+                'Content-Type': 'application/json'
+            }
+            payload = {
+                'model': 'gpt-4',
+                'messages': [{'role': 'user', 'content': message}]
+            }
+            response = requests.post(
+                model_config['endpoint'],
+                headers=headers,
+                json=payload
+            )
+            result = response.json()
+            ai_response = result['choices'][0]['message']['content']
+            
+        elif model == 'gemini':
+            # Gemini
+            url = f"{model_config['endpoint']}?key={Config.GEMINI_API_KEY}"
+            payload = {
+                'contents': [{
+                    'parts': [{'text': message}]
+                }]
+            }
+            response = requests.post(url, json=payload)
+            result = response.json()
+            ai_response = result['candidates'][0]['content']['parts'][0]['text']
+        
+        # Enregistrer l'utilisation
+        usage = APIUsage(
+            user_id=current_user.id,
+            model=model,
+            prompt=message,
+            response=ai_response,
+            tokens_used=len(message.split()) + len(ai_response.split())
+        )
+        db.session.add(usage)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'model': model_config['name'],
+            'model_name': model_config['system_name'],
+            'response': ai_response,
+            'usage': usage.tokens_used
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/keys', methods=['GET'])
+@login_required
+def get_api_keys():
+    """Retourne la clé API de l'utilisateur"""
+    return jsonify({
+        'api_key': current_user.api_key,
+        'created_at': current_user.created_at
+    })
+
+@app.route('/api/keys/regenerate', methods=['POST'])
+@login_required
+def regenerate_api_key():
+    """Régénère la clé API"""
+    current_user.api_key = secrets.token_urlsafe(32)
+    db.session.commit()
+    return jsonify({'api_key': current_user.api_key})
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+    app.run(debug=True, host='0.0.0.0', port=5000)

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation API - Open Always</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
+        .header { background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%); color: white; padding: 2rem; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .api-key-box { background: white; border-radius: 8px; padding: 2rem; margin: 2rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .api-key { background: #1f2937; color: #10b981; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 1.2rem; margin: 1rem 0; }
+        .endpoint { background: white; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; border-left: 4px solid #2563EB; }
+        .method { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold; }
+        .method.post { background: #10b981; color: white; }
+        .method.get { background: #3b82f6; color: white; }
+        .code-block { background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; font-family: monospace; overflow-x: auto; }
+        .models-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .model-tag { background: #e5e7eb; padding: 0.5rem 1rem; border-radius: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Documentation API</h1>
+        <p>Open Always - Une API pour tous les modèles</p>
+    </div>
+    
+    <div class="container">
+        <div class="api-key-box">
+            <h2>🔑 Votre clé API</h2>
+            <p>Connectez-vous pour obtenir votre clé API unique : <strong>OPEN_ALWAYS_API_KEY</strong></p>
+            <div class="api-key">
+                ⚡ open_always_live_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            </div>
+            <p><small>Cette clé donne accès à TOUS les modèles simulés via notre API Okitakoy</small></p>
+        </div>
+        
+        <h2>🤖 Modèles disponibles</h2>
+        <div class="models-grid">
+            <div class="model-tag">GPT-4</div>
+            <div class="model-tag">GPT-3.5 Turbo</div>
+            <div class="model-tag">Claude 3</div>
+            <div class="model-tag">Claude 3 Opus</div>
+            <div class="model-tag">Gemini Pro</div>
+            <div class="model-tag">Gemini Ultra</div>
+            <div class="model-tag">Llama 3.1</div>
+            <div class="model-tag">Llama 70B</div>
+            <div class="model-tag">Mistral Large</div>
+            <div class="model-tag">DeepSeek V3</div>
+            <div class="model-tag">Cohere Command</div>
+            <div class="model-tag">Okitakoy AI</div>
+        </div>
+        
+        <h2>📡 Endpoints</h2>
+        
+        <div class="endpoint">
+            <span class="method post">POST</span> <code>/api/chat</code>
+            <h3>Chat avec n'importe quel modèle</h3>
+            <div class="code-block">
+# Exemple Python
+import requests
+
+headers = {
+    "Authorization": "Bearer OPEN_ALWAYS_API_KEY",
+    "Content-Type": "application/json"
+}
+
+data = {
+    "model": "gpt4",  # ou claude, gemini, llama, etc.
+    "message": "Explique la relativité"
+}
+
+response = requests.post("https://open-always.onrender.com/api/chat", 
+                        json=data, headers=headers)
+print(response.json()["response"])
+            </div>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method get">GET</span> <code>/api/models</code>
+            <h3>Liste tous les modèles</h3>
+        </div>
+        
+        <div class="endpoint">
+            <span class="method get">GET</span> <code>/api/keys</code>
+            <h3>Informations sur votre clé</h3>
+        </div>
+        
+        <h2>🚀 Intégration rapide</h2>
+        
+        <h3>Python</h3>
+        <div class="code-block">
+import requests
+
+class OpenAlwaysAI:
+    def __init__(self, api_key):
+        self.api_key = api_key
+        self.base_url = "https://open-always.onrender.com/api"
+    
+    def chat(self, model, message):
+        response = requests.post(
+            f"{self.base_url}/chat",
+            headers={"Authorization": f"Bearer {self.api_key}"},
+            json={"model": model, "message": message}
+        )
+        return response.json()
+
+# Utilisation
+ai = OpenAlwaysAI("votre_clé_ici")
+response = ai.chat("gpt4", "Qui a créé Open Always?")
+print(response["response"])  # Parlera de Précieux Okitakoy
+        </div>
+        
+        <h3>JavaScript</h3>
+        <div class="code-block">
+class OpenAlwaysAI {
+    constructor(apiKey) {
+        this.apiKey = apiKey;
+        this.baseUrl = "https://open-always.onrender.com/api";
+    }
+    
+    async chat(model, message) {
+        const response = await fetch(`${this.baseUrl}/chat`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${this.apiKey}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({model, message})
+        });
+        return await response.json();
+    }
+}
+
+// Utilisation
+const ai = new OpenAlwaysAI("votre_clé_ici");
+ai.chat("claude", "Hello").then(data => {
+    console.log(data.response);
+});
+        </div>
+        
+        <h3>cURL</h3>
+        <div class="code-block">
+curl -X POST https://open-always.onrender.com/api/chat \\
+  -H "Authorization: Bearer votre_clé" \\
+  -H "Content-Type: application/json" \\
+  -d '{"model": "gemini", "message": "Who created you?"}'
+        </div>
+        
+        <div style="background: #e0f2fe; border-radius: 8px; padding: 1.5rem; margin: 2rem 0;">
+            <h3>✨ Tous les modèles → Un seul backend</h3>
+            <p>
+                Tous les modèles sont simulés par <strong>Okitakoy AI</strong>, l'IA créée par 
+                <strong>Précieux Okitakoy (Okitakoy Inc.)</strong>. Chaque modèle répond avec 
+                la personnalité correspondante mais partage la même technologie de base.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
