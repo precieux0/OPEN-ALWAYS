@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_required, current_user
 import requests
 import secrets
 from datetime import datetime
-from .models import db, User, APIUsage
+from backend.models import db, User, APIUsage
 from .auth import auth_bp, mail, oauth
 from .config import Config
 
