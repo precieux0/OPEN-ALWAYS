@@ -3,303 +3,240 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Open Always - Chat IA gratuit</title>
+    <title>Open Always - Chat IA Multi-Modeles Gratuit</title>
+    <meta name="description" content="Accedez a plus de 10 modeles IA gratuitement. GPT-4, Claude, Gemini, Llama et plus. Messages illimites.">
+    <link rel="stylesheet" href="/static/css/shared.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: #f0f2f5; 
+        .hero {
+            position: relative; padding: 6rem 2rem 4rem;
+            text-align: center; overflow: hidden;
         }
-        
-        .navbar {
-            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .hero::before {
+            content: ''; position: absolute; inset: 0; z-index: -1;
+            background: 
+                radial-gradient(ellipse 80% 60% at 50% 20%, rgba(14, 165, 233, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 80% 80%, rgba(249, 115, 22, 0.08) 0%, transparent 50%);
         }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
+        .hero-badge {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.2);
+            padding: 0.4rem 1rem; border-radius: 50px; font-size: 0.8rem;
+            color: var(--primary-light); margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease both;
         }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
+        .hero-badge .dot {
+            width: 6px; height: 6px; background: var(--success);
+            border-radius: 50%; animation: pulse 2s infinite;
         }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.9;
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            line-height: 1.1; letter-spacing: -0.04em;
+            margin-bottom: 1.25rem;
+            animation: fadeInUp 0.6s ease 0.1s both;
         }
-        
-        .nav-links a:hover {
-            opacity: 1;
+        .hero h1 .gradient-text {
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        .username-badge {
-            background: #10b981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
+        .hero .subtitle {
+            font-size: 1.15rem; color: var(--text-secondary);
+            max-width: 540px; margin: 0 auto 2.5rem;
+            line-height: 1.6;
+            animation: fadeInUp 0.6s ease 0.2s both;
         }
-        
-        .login-btn {
-            background: rgba(255,255,255,0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 6px;
+        .hero-actions {
+            display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+            animation: fadeInUp 0.6s ease 0.3s both;
         }
+        .hero-actions .btn { padding: 0.875rem 2rem; font-size: 1rem; }
         
-        .header {
-            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+        
+        .section { padding: 5rem 0; }
+        .section-title {
+            text-align: center; margin-bottom: 3rem;
         }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        .section-title h2 {
+            font-size: 2rem; letter-spacing: -0.03em; margin-bottom: 0.5rem;
         }
+        .section-title p { color: var(--text-muted); font-size: 1rem; }
         
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
+        /* Features */
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
+            gap: 1.5rem;
         }
-        
         .feature-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-lg); padding: 2rem;
+            transition: var(--transition);
         }
-        
-        .feature-card h3 {
-            color: #2563EB;
-            margin: 1rem 0;
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
-        
-        .feature-card p {
-            color: #6b7280;
+        .feature-icon {
+            width: 48px; height: 48px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 1.25rem;
         }
+        .feature-card h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .feature-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
         
-        .models-section {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .models-section h2 {
-            color: #1f2937;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        
+        /* Models */
         .models-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.75rem;
         }
-        
-        .model-badge {
-            background: #e2e8f0;
-            padding: 0.75rem;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 500;
-            color: #4b5563;
+        .model-chip {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 0.875rem 1rem;
+            text-align: center; transition: var(--transition);
         }
+        .model-chip:hover {
+            border-color: var(--primary); background: rgba(14, 165, 233, 0.05);
+        }
+        .model-chip strong {
+            display: block; font-size: 0.85rem; margin-bottom: 0.2rem;
+        }
+        .model-chip small { color: var(--text-muted); font-size: 0.75rem; }
         
+        /* CTA */
         .cta-section {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border-radius: 12px;
-            padding: 3rem;
-            text-align: center;
-            color: white;
+            position: relative;
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 4rem 2rem;
+            text-align: center; overflow: hidden;
+            margin: 4rem 0;
+        }
+        .cta-section::before {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(249, 115, 22, 0.1), transparent 60%);
+        }
+        .cta-section > * { position: relative; z-index: 1; }
+        .cta-section h2 { font-size: 2rem; margin-bottom: 0.75rem; letter-spacing: -0.03em; }
+        .cta-section p { color: var(--text-secondary); margin-bottom: 2rem; font-size: 1rem; }
+        
+        /* Stats */
+        .stats-row {
+            display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
             margin: 3rem 0;
         }
-        
-        .cta-section h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
+        .stat { text-align: center; }
+        .stat .num {
+            font-family: var(--font-display); font-size: 2.5rem; font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        
-        .cta-button {
-            display: inline-block;
-            background: white;
-            color: #d97706;
-            padding: 1rem 3rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-top: 2rem;
-            transition: transform 0.3s;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 2rem;
-            background: #1f2937;
-            color: white;
-            margin-top: 3rem;
-        }
-        
-        .footer a {
-            color: #60A5FA;
-            text-decoration: none;
-        }
-        
-        @media (max-width: 768px) {
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-        }
+        .stat .label { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.25rem; }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Open Always AI</div>
-        <div class="nav-links">
-            <a href="/faq">FAQ</a>
-            <a href="/docs">Documentation</a>
-            <span id="authLinks">
-                <a href="/auth/login" class="login-btn">Connexion</a>
-                <a href="/auth/register" class="login-btn">Inscription</a>
-            </span>
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            Open Always
+        </div>
+        <div class="nav-links" id="navLinks">
+            <a href="/faq" class="hide-mobile">FAQ</a>
+            <a href="/docs" class="hide-mobile">Docs</a>
+            <a href="/auth/login" class="nav-btn">Connexion</a>
         </div>
     </nav>
 
-    <div class="header">
-        <h1>Chat avec l'IA, gratuitement</h1>
-        <p>Accédez à plus de 10 modèles d'IA sans limite de messages</p>
-    </div>
+    <section class="hero">
+        <div class="hero-badge"><div class="dot"></div> 12 modeles IA disponibles</div>
+        <h1>L'IA accessible <span class="gradient-text">a tous</span></h1>
+        <p class="subtitle">Discutez avec GPT-4, Claude, Gemini, Llama et 8 autres modeles. Gratuit, sans limite de messages.</p>
+        <div class="hero-actions">
+            <a href="/auth/register" class="btn btn-primary">Commencer gratuitement</a>
+            <a href="/docs" class="btn btn-ghost">Documentation API</a>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat"><div class="num">12+</div><div class="label">Modeles IA</div></div>
+            <div class="stat"><div class="num">∞</div><div class="label">Messages</div></div>
+            <div class="stat"><div class="num">0€</div><div class="label">Gratuit</div></div>
+        </div>
+    </section>
 
     <div class="container">
-        <!-- Features -->
-        <div class="features-grid">
-            <div class="feature-card">
-                <div style="font-size: 3rem;">🤖</div>
-                <h3>10+ Modèles IA</h3>
-                <p>GPT-4, Claude, Gemini, Llama, Mistral et plus encore</p>
+        <section class="section">
+            <div class="section-title">
+                <h2>Tout ce dont vous avez besoin</h2>
+                <p>Une plateforme complete pour interagir avec l'IA</p>
             </div>
-            <div class="feature-card">
-                <div style="font-size: 3rem;">💬</div>
-                <h3>Messages illimités</h3>
-                <p>Discutez sans limite, aucun crédit à dépenser</p>
+            <div class="features-grid">
+                <div class="feature-card animate-in" style="animation-delay:0.1s">
+                    <div class="feature-icon" style="background:rgba(14,165,233,0.1);">🤖</div>
+                    <h3>10+ Modeles IA</h3>
+                    <p>GPT-4, Claude 3, Gemini Pro, Llama 3.1, Mistral, DeepSeek et plus encore. Tous accessibles depuis une seule interface.</p>
+                </div>
+                <div class="feature-card animate-in" style="animation-delay:0.2s">
+                    <div class="feature-icon" style="background:rgba(249,115,22,0.1);">💬</div>
+                    <h3>Messages illimites</h3>
+                    <p>Aucune limite de messages, aucun credit a depenser. Discutez autant que vous voulez avec n'importe quel modele.</p>
+                </div>
+                <div class="feature-card animate-in" style="animation-delay:0.3s">
+                    <div class="feature-icon" style="background:rgba(16,185,129,0.1);">🔑</div>
+                    <h3>API Key gratuite</h3>
+                    <p>Obtenez une cle API des l'inscription. Integrez l'IA dans vos projets avec notre API RESTful simple.</p>
+                </div>
             </div>
-            <div class="feature-card">
-                <div style="font-size: 3rem;">🔑</div>
-                <h3>Clés API incluses</h3>
-                <p>5 clés API incluses, +1 par publicité regardée</p>
-            </div>
-        </div>
+        </section>
 
-        <!-- Modèles disponibles -->
-        <div class="models-section">
-            <h2>🤖 Modèles disponibles</h2>
-            <div class="models-grid" id="modelsGrid">
-                <!-- Chargé dynamiquement -->
+        <section class="section">
+            <div class="section-title">
+                <h2>Modeles disponibles</h2>
+                <p>Les meilleurs modeles d'IA au monde, accessibles gratuitement</p>
             </div>
-        </div>
+            <div class="models-grid" id="modelsGrid"></div>
+        </section>
 
-        <!-- Call to Action -->
         <div class="cta-section">
-            <h2>Prêt à discuter avec l'IA ?</h2>
-            <p>Créez un compte gratuitement et obtenez votre première clé API</p>
-            <a href="/auth/register" class="cta-button">Créer un compte gratuit</a>
-            <p style="margin-top: 2rem; opacity: 0.9;">Déjà inscrit ? <a href="/auth/login" style="color: white; font-weight: bold;">Se connecter</a></p>
+            <h2>Pret a commencer ?</h2>
+            <p>Creez un compte en 30 secondes et commencez a discuter avec l'IA</p>
+            <a href="/auth/register" class="btn btn-accent" style="padding:1rem 2.5rem;font-size:1rem;">Creer un compte gratuit</a>
         </div>
     </div>
 
     <div class="footer">
-        <p>Open Always © 2026 - Créé par <a href="https://github.com/precieux0">Précieux Okitakoy</a> (Okitakoy Inc.)</p>
-        <p>🚀 L'IA accessible à tous</p>
+        <p>Open Always &copy; 2026 - Cree par <a href="https://github.com/precieux0">Precieux Okitakoy</a> (Okitakoy Inc.)</p>
     </div>
 
     <script>
-        // Charger la liste des modèles
         async function loadModels() {
             try {
-                const response = await fetch('/api/models');
-                const models = await response.json();
-                
+                const res = await fetch('/api/models');
+                const models = await res.json();
                 const grid = document.getElementById('modelsGrid');
                 grid.innerHTML = '';
-                
                 for (const [id, info] of Object.entries(models)) {
-                    grid.innerHTML += `
-                        <div class="model-badge">
-                            <strong>${info.name}</strong><br>
-                            <small style="color: #6b7280;">${info.provider}</small>
-                        </div>
-                    `;
+                    grid.innerHTML += `<div class="model-chip"><strong>${info.name}</strong><small>${info.provider}</small></div>`;
                 }
-            } catch (error) {
-                console.error('Erreur chargement modèles:', error);
-            }
+            } catch (e) { console.error(e); }
         }
         
-        // Vérifier si l'utilisateur est connecté
         async function checkAuth() {
             try {
-                const response = await fetch('/api/keys');
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('authLinks').innerHTML = `
-                        <span class="username-badge">${data.username}</span>
+                const res = await fetch('/api/me');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('navLinks').innerHTML = `
+                        <a href="/faq" class="hide-mobile">FAQ</a>
+                        <a href="/docs" class="hide-mobile">Docs</a>
                         <a href="/dashboard">Dashboard</a>
-                        <a href="/auth/logout">Déconnexion</a>
+                        <span class="user-badge">${data.username}</span>
                     `;
                 }
-            } catch (error) {
-                console.error('Erreur vérification auth:', error);
-            }
+            } catch (e) {}
         }
         
-        // Initialisation
-        document.addEventListener('DOMContentLoaded', () => {
-            loadModels();
-            checkAuth();
-        });
+        document.addEventListener('DOMContentLoaded', () => { loadModels(); checkAuth(); });
     </script>
 </body>
 </html>

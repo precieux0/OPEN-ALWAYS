@@ -4,158 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation API - Open Always</title>
+    <link rel="stylesheet" href="/static/css/shared.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .header { background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%); color: white; padding: 2rem; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .api-key-box { background: white; border-radius: 8px; padding: 2rem; margin: 2rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .api-key { background: #1f2937; color: #10b981; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 1.2rem; margin: 1rem 0; }
-        .endpoint { background: white; border-radius: 8px; padding: 1.5rem; margin: 1rem 0; border-left: 4px solid #2563EB; }
-        .method { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: bold; }
-        .method.post { background: #10b981; color: white; }
-        .method.get { background: #3b82f6; color: white; }
-        .code-block { background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 6px; font-family: monospace; overflow-x: auto; }
-        .models-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
-        .model-tag { background: #e5e7eb; padding: 0.5rem 1rem; border-radius: 20px; text-align: center; }
+        .container { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+        .page-header p { color: var(--text-muted); font-size: 1rem; }
+        
+        .doc-section { margin-bottom: 2.5rem; }
+        .doc-section h2 {
+            font-size: 1.25rem; margin-bottom: 1rem;
+            padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+        }
+        .doc-section p { color: var(--text-secondary); line-height: 1.7; font-size: 0.9rem; margin-bottom: 1rem; }
+        
+        .code-block {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 1.25rem;
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--primary-light); overflow-x: auto;
+            line-height: 1.7; margin-bottom: 1rem;
+            position: relative;
+        }
+        .code-block .lang {
+            position: absolute; top: 0.5rem; right: 0.75rem;
+            font-size: 0.65rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.1em;
+        }
+        
+        .endpoint-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .endpoint-method {
+            display: inline-block; padding: 0.2rem 0.6rem;
+            border-radius: 4px; font-size: 0.7rem; font-weight: 700;
+            font-family: var(--font-mono); letter-spacing: 0.05em;
+            margin-right: 0.5rem;
+        }
+        .method-get { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+        .method-post { background: rgba(14, 165, 233, 0.15); color: #7dd3fc; }
+        
+        .endpoint-path {
+            font-family: var(--font-mono); font-size: 0.85rem; font-weight: 600;
+        }
+        .endpoint-desc {
+            color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.5rem;
+        }
+        
+        .param-table {
+            width: 100%; border-collapse: collapse; margin-top: 0.75rem;
+        }
+        .param-table th {
+            text-align: left; padding: 0.5rem;
+            font-size: 0.75rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table td {
+            padding: 0.5rem; font-size: 0.85rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .param-table code {
+            font-family: var(--font-mono); color: var(--accent);
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>📚 Documentation API</h1>
-        <p>Open Always - Une API pour tous les modèles</p>
-    </div>
-    
+    <nav class="navbar">
+        <a href="/" class="logo"><div class="logo-icon">⚡</div> Open Always</a>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/faq">FAQ</a>
+            <a href="/auth/login" class="nav-btn">Connexion</a>
+        </div>
+    </nav>
+
     <div class="container">
-        <div class="api-key-box">
-            <h2>🔑 Votre clé API</h2>
-            <p>Connectez-vous pour obtenir votre clé API unique : <strong>OPEN_ALWAYS_API_KEY</strong></p>
-            <div class="api-key">
-                ⚡ open_always_live_sk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-            </div>
-            <p><small>Cette clé donne accès à TOUS les modèles simulés via notre API Okitakoy</small></p>
+        <div class="page-header animate-in">
+            <h1>Documentation API</h1>
+            <p>Integrez l'IA dans vos projets avec notre API RESTful</p>
         </div>
         
-        <h2>🤖 Modèles disponibles</h2>
-        <div class="models-grid">
-            <div class="model-tag">GPT-4</div>
-            <div class="model-tag">GPT-3.5 Turbo</div>
-            <div class="model-tag">Claude 3</div>
-            <div class="model-tag">Claude 3 Opus</div>
-            <div class="model-tag">Gemini Pro</div>
-            <div class="model-tag">Gemini Ultra</div>
-            <div class="model-tag">Llama 3.1</div>
-            <div class="model-tag">Llama 70B</div>
-            <div class="model-tag">Mistral Large</div>
-            <div class="model-tag">DeepSeek V3</div>
-            <div class="model-tag">Cohere Command</div>
-            <div class="model-tag">Okitakoy AI</div>
-        </div>
-        
-        <h2>📡 Endpoints</h2>
-        
-        <div class="endpoint">
-            <span class="method post">POST</span> <code>/api/chat</code>
-            <h3>Chat avec n'importe quel modèle</h3>
+        <div class="doc-section animate-in" style="animation-delay:0.1s">
+            <h2>Authentification</h2>
+            <p>Toutes les requetes API necessitent un token Bearer. Recuperez votre cle API depuis le Dashboard.</p>
             <div class="code-block">
-# Exemple Python
-import requests
-
-headers = {
-    "Authorization": "Bearer OPEN_ALWAYS_API_KEY",
-    "Content-Type": "application/json"
-}
-
-data = {
-    "model": "gpt4",  # ou claude, gemini, llama, etc.
-    "message": "Explique la relativité"
-}
-
-response = requests.post("https://open-always.onrender.com/api/chat", 
-                        json=data, headers=headers)
-print(response.json()["response"])
+                <span class="lang">HTTP</span>
+Authorization: Bearer open_always_live_VOTRE_CLE_API
             </div>
         </div>
         
-        <div class="endpoint">
-            <span class="method get">GET</span> <code>/api/models</code>
-            <h3>Liste tous les modèles</h3>
+        <div class="doc-section animate-in" style="animation-delay:0.15s">
+            <h2>Endpoints</h2>
+            
+            <div class="endpoint-card">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/api/chat</span>
+                <p class="endpoint-desc">Envoyer un message a un modele IA</p>
+                <table class="param-table">
+                    <thead><tr><th>Parametre</th><th>Type</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>message</code></td><td>string</td><td>Le message a envoyer</td></tr>
+                        <tr><td><code>model</code></td><td>string</td><td>ID du modele (ex: gpt4, claude, okitakoy)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="endpoint-card">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/api/models</span>
+                <p class="endpoint-desc">Lister tous les modeles disponibles</p>
+            </div>
+            
+            <div class="endpoint-card">
+                <span class="endpoint-method method-get">GET</span>
+                <span class="endpoint-path">/api/keys</span>
+                <p class="endpoint-desc">Recuperer vos informations de cle API</p>
+            </div>
+            
+            <div class="endpoint-card">
+                <span class="endpoint-method method-post">POST</span>
+                <span class="endpoint-path">/api/keys/regenerate</span>
+                <p class="endpoint-desc">Generer une nouvelle cle API</p>
+            </div>
         </div>
         
-        <div class="endpoint">
-            <span class="method get">GET</span> <code>/api/keys</code>
-            <h3>Informations sur votre clé</h3>
-        </div>
-        
-        <h2>🚀 Intégration rapide</h2>
-        
-        <h3>Python</h3>
-        <div class="code-block">
+        <div class="doc-section animate-in" style="animation-delay:0.2s">
+            <h2>Exemple d'utilisation</h2>
+            
+            <div class="code-block">
+                <span class="lang">cURL</span>
+curl -X POST https://votre-app.onrender.com/api/chat \
+  -H "Authorization: Bearer open_always_live_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gpt4", "message": "Bonjour !"}'
+            </div>
+            
+            <div class="code-block">
+                <span class="lang">Python</span>
 import requests
 
-class OpenAlwaysAI:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.base_url = "https://open-always.onrender.com/api"
-    
-    def chat(self, model, message):
-        response = requests.post(
-            f"{self.base_url}/chat",
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={"model": model, "message": message}
-        )
-        return response.json()
-
-# Utilisation
-ai = OpenAlwaysAI("votre_clé_ici")
-response = ai.chat("gpt4", "Qui a créé Open Always?")
-print(response["response"])  # Parlera de Précieux Okitakoy
-        </div>
-        
-        <h3>JavaScript</h3>
-        <div class="code-block">
-class OpenAlwaysAI {
-    constructor(apiKey) {
-        this.apiKey = apiKey;
-        this.baseUrl = "https://open-always.onrender.com/api";
-    }
-    
-    async chat(model, message) {
-        const response = await fetch(`${this.baseUrl}/chat`, {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${this.apiKey}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({model, message})
-        });
-        return await response.json();
-    }
-}
-
-// Utilisation
-const ai = new OpenAlwaysAI("votre_clé_ici");
-ai.chat("claude", "Hello").then(data => {
-    console.log(data.response);
+response = requests.post(
+    "https://votre-app.onrender.com/api/chat",
+    headers={"Authorization": "Bearer open_always_live_xxx"},
+    json={"model": "claude", "message": "Explique-moi Python"}
+)
+print(response.json())
+            </div>
+            
+            <div class="code-block">
+                <span class="lang">JavaScript</span>
+const res = await fetch("/api/chat", {
+  method: "POST",
+  headers: {
+    "Authorization": "Bearer open_always_live_xxx",
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ model: "gemini", message: "Hello!" })
 });
+const data = await res.json();
+console.log(data.response);
+            </div>
         </div>
         
-        <h3>cURL</h3>
-        <div class="code-block">
-curl -X POST https://open-always.onrender.com/api/chat \\
-  -H "Authorization: Bearer votre_clé" \\
-  -H "Content-Type: application/json" \\
-  -d '{"model": "gemini", "message": "Who created you?"}'
-        </div>
-        
-        <div style="background: #e0f2fe; border-radius: 8px; padding: 1.5rem; margin: 2rem 0;">
-            <h3>✨ Tous les modèles → Un seul backend</h3>
-            <p>
-                Tous les modèles sont simulés par <strong>Okitakoy AI</strong>, l'IA créée par 
-                <strong>Précieux Okitakoy (Okitakoy Inc.)</strong>. Chaque modèle répond avec 
-                la personnalité correspondante mais partage la même technologie de base.
-            </p>
+        <div class="doc-section animate-in" style="animation-delay:0.25s">
+            <h2>Modeles disponibles</h2>
+            <div id="models-doc"></div>
         </div>
     </div>
+
+    <div class="footer">
+        <p>Open Always API &copy; 2026 - <a href="https://github.com/precieux0">Precieux Okitakoy</a></p>
+    </div>
+    
+    <script>
+        async function loadModels() {
+            try {
+                const res = await fetch('/api/models');
+                const models = await res.json();
+                const container = document.getElementById('models-doc');
+                let html = '<table class="param-table"><thead><tr><th>ID</th><th>Nom</th><th>Provider</th></tr></thead><tbody>';
+                for (const [id, info] of Object.entries(models)) {
+                    html += `<tr><td><code>${id}</code></td><td>${info.name}</td><td>${info.provider}</td></tr>`;
+                }
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (e) { console.error(e); }
+        }
+        document.addEventListener('DOMContentLoaded', loadModels);
+    </script>
 </body>
 </html>

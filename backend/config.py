@@ -1,24 +1,33 @@
 import os
 from dotenv import load_dotenv
 
-# Charge les variables d'environnement depuis .env
 load_dotenv()
 
 class Config:
     # Flask
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-12345'
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-key-change-in-production'
     
     # Base de données
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_POOL_SIZE = 2
+    SQLALCHEMY_MAX_OVERFLOW = 3
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 180,
+        'pool_timeout': 10,
+    }
     
-    # Email
+    # ===== EMAIL - Configuration SMTP Gmail =====
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@open-always.com')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_USERNAME')
+    MAIL_TIMEOUT = 30
+    MAIL_DEBUG = False
     
     # Google OAuth
     GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')

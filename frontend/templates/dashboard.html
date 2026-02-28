@@ -4,992 +4,312 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Open Always</title>
+    <link rel="stylesheet" href="/static/css/shared.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+        
+        .welcome-banner {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-xl); padding: 2rem;
+            margin-bottom: 2rem; position: relative; overflow: hidden;
+        }
+        .welcome-banner::before {
+            content: ''; position: absolute; inset: 0; z-index: 0;
+            background: radial-gradient(ellipse at 80% 20%, rgba(14, 165, 233, 0.08), transparent 50%);
+        }
+        .welcome-banner > * { position: relative; z-index: 1; }
+        .welcome-banner h1 { font-size: 1.5rem; margin-bottom: 0.25rem; letter-spacing: -0.02em; }
+        .welcome-banner p { color: var(--text-secondary); font-size: 0.9rem; }
+        
+        .chat-cta {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white; padding: 0.875rem 1.5rem;
+            border-radius: var(--radius-md); font-weight: 600;
+            margin-top: 1.25rem; transition: var(--transition);
+            text-decoration: none; font-size: 0.9rem;
+        }
+        .chat-cta:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); color: white; }
+        
+        .grid-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        
+        .card-title {
+            font-size: 0.85rem; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 1.25rem; display: flex;
+            align-items: center; gap: 0.5rem;
         }
         
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-        }
-        
-        .navbar {
-            background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            align-items: center;
-        }
-        
-        .nav-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.9;
-            transition: opacity 0.3s;
-        }
-        
-        .nav-links a:hover {
-            opacity: 1;
-        }
-        
-        .username-badge {
-            background: #10b981;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        
-        .card h2 {
-            color: #1f2937;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 2px solid #2563EB;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Section Publicités */
-        .ads-section {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            color: white;
-        }
-        
-        .ads-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .ads-header h2 {
-            color: white;
-            border: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .ads-badge {
-            background: white;
-            color: #d97706;
-            padding: 0.25rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-        
-        .ads-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-        }
-        
-        .ad-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: transform 0.3s, background 0.3s;
-        }
-        
-        .ad-card:hover {
-            transform: translateY(-4px);
-            background: rgba(255,255,255,0.2);
-        }
-        
-        .ad-card img {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 8px;
+        .api-key-box {
+            display: flex; align-items: center; gap: 0.75rem;
+            background: var(--bg-deep); border: 1px solid var(--border);
+            border-radius: var(--radius-sm); padding: 0.75rem 1rem;
             margin-bottom: 1rem;
         }
-        
-        .ad-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
+        .api-key-box code {
+            font-family: var(--font-mono); font-size: 0.8rem;
+            color: var(--primary-light); flex: 1;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        
-        .ad-card p {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
+        .api-key-box button {
+            background: none; border: 1px solid var(--border);
+            color: var(--text-secondary); padding: 0.4rem 0.75rem;
+            border-radius: 6px; cursor: pointer; font-size: 0.75rem;
+            transition: var(--transition); font-family: var(--font-body);
         }
-        
-        .ad-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-        
-        .ad-reward {
-            display: inline-block;
-            background: #10b981;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-        
-        .ad-sponsor {
-            font-size: 0.8rem;
-            opacity: 0.7;
-        }
-        
-        .watch-btn {
-            background: white;
-            color: #d97706;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 0.5rem;
-            transition: background 0.3s;
-        }
-        
-        .watch-btn:hover {
-            background: #fef3c7;
-        }
-        
-        /* Modal publicité */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        
-        .modal.active {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            max-width: 500px;
-            width: 90%;
-            text-align: center;
-        }
-        
-        .modal-content h2 {
-            color: #1f2937;
-            margin-bottom: 1rem;
-        }
-        
-        .ad-preview {
-            background: #1f2937;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-        
-        .ad-preview img {
-            width: 100%;
-            max-height: 250px;
-            object-fit: cover;
-        }
-        
-        .timer {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #f59e0b;
-            margin: 1rem 0;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            overflow: hidden;
-            margin: 1rem 0;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: #10b981;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .modal-message {
-            color: #4b5563;
-            margin: 1rem 0;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .modal-btn:disabled {
-            background: #e5e7eb;
-            color: #9ca3af;
-            cursor: not-allowed;
-        }
-        
-        .modal-btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .modal-btn-success:hover:not(:disabled) {
-            background: #059669;
-        }
-        
-        /* Stats */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            text-align: center;
-        }
-        
-        .stat-item {
-            background: #f8fafc;
-            padding: 1.5rem;
-            border-radius: 8px;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2563EB;
-        }
-        
-        .stat-label {
-            color: #64748b;
-            margin-top: 0.5rem;
-        }
-        
-        /* Clé API */
-        .api-key-section {
-            background: #1f2937;
-            color: white;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-        
-        .api-key-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin-bottom: 0.5rem;
-        }
-        
-        .api-key {
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            background: #111827;
-            padding: 1rem;
-            border-radius: 6px;
-            color: #10b981;
-            word-break: break-all;
-            margin: 1rem 0;
-        }
+        .api-key-box button:hover { border-color: var(--primary); color: var(--primary-light); }
         
         .key-stats {
-            margin: 1rem 0;
-            padding: 0.75rem;
-            background: #374151;
-            border-radius: 8px;
+            display: flex; gap: 1.5rem; margin-top: 1rem;
         }
-        
-        .key-stats-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
+        .key-stat {
+            text-align: center;
         }
-        
-        .key-progress-bar {
-            height: 6px;
-            background: #4B5563;
-            border-radius: 3px;
-            overflow: hidden;
+        .key-stat .value {
+            font-family: var(--font-display); font-size: 1.5rem; font-weight: 700;
+            color: var(--primary-light);
         }
+        .key-stat .label { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
         
-        .key-progress-fill {
-            height: 100%;
-            background: #10b981;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .flex-row {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        
-        .btn-primary {
-            background: #2563EB;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #1E40AF;
-        }
-        
-        .btn-secondary {
-            background: #64748b;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #475569;
-        }
-        
-        .btn-secondary:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #2563EB;
-            color: #2563EB;
-        }
-        
-        .btn-outline:hover {
-            background: #2563EB;
-            color: white;
-        }
-        
-        .btn-danger {
-            background: #dc2626;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #b91c1c;
-        }
-        
-        /* Tableau */
         .usage-table {
             width: 100%;
-            border-collapse: collapse;
+        }
+        .usage-row {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+        }
+        .usage-row:last-child { border-bottom: none; }
+        .usage-model {
+            font-weight: 600; font-size: 0.85rem; min-width: 120px;
+        }
+        .usage-prompt {
+            flex: 1; color: var(--text-secondary); font-size: 0.8rem;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .usage-tokens {
+            font-family: var(--font-mono); font-size: 0.75rem;
+            color: var(--text-muted); min-width: 60px; text-align: right;
         }
         
-        .usage-table th {
-            text-align: left;
-            padding: 1rem;
-            background: #f8fafc;
-            color: #4b5563;
-            font-weight: 600;
+        .empty-state {
+            text-align: center; padding: 2rem;
+            color: var(--text-muted); font-size: 0.85rem;
         }
         
-        .usage-table td {
-            padding: 1rem;
-            border-bottom: 1px solid #e2e8f0;
+        /* Ads section */
+        .ads-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem; margin-top: 1.5rem;
         }
-        
-        .model-tag {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            background: #e2e8f0;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #4b5563;
+        .ad-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); overflow: hidden; transition: var(--transition);
         }
-        
-        /* Alertes */
-        .alert-warning {
-            background: #fef3c7;
-            border: 1px solid #fde68a;
-            color: #92400e;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
+        .ad-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .ad-card img { width: 100%; height: 120px; object-fit: cover; }
+        .ad-card-body { padding: 0.875rem; }
+        .ad-card-body h4 { font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .ad-card-body p { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.75rem; }
+        .ad-watch-btn {
+            width: 100%; padding: 0.5rem;
+            background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.2);
+            color: var(--accent); border-radius: 6px;
+            cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            transition: var(--transition); font-family: var(--font-body);
         }
+        .ad-watch-btn:hover { background: rgba(249, 115, 22, 0.2); }
         
-        .alert-info {
-            background: #dbeafe;
-            border: 1px solid #bfdbfe;
-            color: #1e40af;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
-        }
-        
-        /* Loading */
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #6b7280;
-        }
-        
-        /* Info message */
-        .info-message {
-            font-size: 0.85rem;
-            margin-top: 1rem;
-            color: #9CA3AF;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Responsive */
         @media (max-width: 768px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .navbar {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-            
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .ads-grid {
-                grid-template-columns: 1fr;
-            }
+            .grid-2 { grid-template-columns: 1fr; }
+            .key-stats { flex-direction: column; gap: 0.75rem; }
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">Open Always AI</div>
+        <a href="/" class="logo">
+            <div class="logo-icon">⚡</div>
+            Open Always
+        </a>
         <div class="nav-links">
-            <a href="/">Chat</a>
-            <a href="/faq">FAQ</a>
-            <a href="/docs">Documentation</a>
-            <span class="username-badge" id="usernameDisplay">Utilisateur</span>
-            <a href="/auth/logout" style="background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 6px;">Déconnexion</a>
+            <a href="/chat">Chat</a>
+            <a href="/docs" class="hide-mobile">API</a>
+            <a href="/faq" class="hide-mobile">FAQ</a>
+            <span id="nav-user" class="user-badge">{{ user.username }}</span>
+            <a href="/auth/logout">Deconnexion</a>
         </div>
     </nav>
-    
+
     <div class="container">
-        <!-- Alerte si limite de clés presque atteinte -->
-        <div id="keyLimitAlert" class="alert-warning" style="display: none;">
-            ⚠️ Vous avez utilisé <span id="usedKeys">0</span>/<span id="totalKeys">5</span> clés. Regardez des pubs pour augmenter votre limite !
+        <div class="welcome-banner animate-in">
+            <h1>Bienvenue, {{ user.username }} 👋</h1>
+            <p>Gerez vos cles API et suivez votre utilisation</p>
+            <a href="/chat" class="chat-cta">💬 Ouvrir le Chat</a>
         </div>
         
-        <!-- SECTION PUBLICITÉS -->
-        <div class="ads-section">
-            <div class="ads-header">
-                <h2>🎬 Gagnez des clés API supplémentaires</h2>
-                <span class="ads-badge">1 pub = +1 clé max</span>
-            </div>
-            
-            <div class="ads-grid" id="adsContainer">
-                <div class="loading">Chargement des publicités...</div>
-            </div>
-            
-            <div class="alert-info" style="margin-top: 1rem; background: rgba(255,255,255,0.2); color: white; border: none;">
-                ⚡ Chaque publicité regardée augmente votre limite maximale de clés de +1 !
-            </div>
-        </div>
-        
-        <div class="dashboard-grid">
-            <!-- Colonne principale -->
+        <div class="grid-2">
             <div>
-                <!-- Statistiques d'utilisation -->
-                <div class="card">
-                    <h2>📊 Statistiques d'utilisation</h2>
-                    <div class="stats-grid">
-                        <div class="stat-item">
-                            <div class="stat-value" id="totalRequests">-</div>
-                            <div class="stat-label">Messages envoyés</div>
+                <!-- API Keys -->
+                <div class="card animate-in" style="animation-delay:0.1s;margin-bottom:1.5rem;">
+                    <div class="card-title">🔑 Cle API</div>
+                    <div class="api-key-box">
+                        <code id="api-key-text">{{ user.api_key }}</code>
+                        <button onclick="copyKey()">Copier</button>
+                    </div>
+                    <div class="key-stats">
+                        <div class="key-stat">
+                            <div class="value" id="keys-generated">{{ user.api_keys_generated or 1 }}</div>
+                            <div class="label">Cles generees</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="tokensUsed">-</div>
-                            <div class="stat-label">Tokens utilisés</div>
+                        <div class="key-stat">
+                            <div class="value" id="max-keys">{{ user.max_api_keys or 5 }}</div>
+                            <div class="label">Maximum</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-value" id="keysUsed">-</div>
-                            <div class="stat-label">Clés générées</div>
+                        <div class="key-stat">
+                            <div class="value" id="keys-remaining">{{ (user.max_api_keys or 5) - (user.api_keys_generated or 1) }}</div>
+                            <div class="label">Restantes</div>
                         </div>
                     </div>
+                    <button class="btn btn-secondary" id="regen-btn" onclick="regenerateKey()" style="width:100%;margin-top:1.25rem;">
+                        Regenerer la cle
+                    </button>
                 </div>
                 
-                <!-- Historique des conversations -->
-                <div class="card">
-                    <h2>📜 Historique des conversations</h2>
-                    <table class="usage-table">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Modèle</th>
-                                <th>Message</th>
-                                <th>Tokens</th>
-                            </tr>
-                        </thead>
-                        <tbody id="usageHistory">
-                            <tr><td colspan="4" class="loading">Chargement...</td></tr>
-                        </tbody>
-                    </table>
+                <!-- Usage -->
+                <div class="card animate-in" style="animation-delay:0.2s;">
+                    <div class="card-title">📊 Utilisation recente</div>
+                    <div id="usage-list">
+                        <div class="empty-state">Chargement...</div>
+                    </div>
                 </div>
             </div>
             
-            <!-- Colonne latérale -->
             <div>
-                <!-- Clé API -->
-                <div class="card">
-                    <h2>🔑 Clés API</h2>
-                    <div class="api-key-section">
-                        <div class="api-key-label">Clé active :</div>
-                        <div class="api-key" id="apiKey">Chargement...</div>
-                        
-                        <!-- Statistiques des clés -->
-                        <div class="key-stats">
-                            <div class="key-stats-row">
-                                <span>📊 Clés générées:</span>
-                                <span><strong id="keysGenerated">1</strong>/<strong id="maxKeys">5</strong></span>
-                            </div>
-                            <div class="key-progress-bar">
-                                <div class="key-progress-fill" id="keyProgress" style="width: 20%;"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Boutons -->
-                        <div class="flex-row">
-                            <button class="btn btn-outline" onclick="copyApiKey()">📋 Copier</button>
-                            <button class="btn btn-secondary" onclick="showRegenerateModal()" id="regenerateBtn">
-                                🔄 Générer nouvelle
-                            </button>
-                        </div>
-                        
-                        <!-- Message d'info -->
-                        <div class="info-message">
-                            <span>⚡ Regardez des pubs pour augmenter votre limite !</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Historique des clés -->
-                <div class="card">
-                    <h2>📋 Clés précédentes</h2>
-                    <div id="keysHistory" style="max-height: 200px; overflow-y: auto;">
-                        <p class="loading">Chargement...</p>
-                    </div>
-                </div>
-                
-                <!-- Informations compte -->
-                <div class="card">
-                    <h2>👤 Mon compte</h2>
-                    <div style="padding: 1rem;">
-                        <p><strong>Nom :</strong> <span id="username">-</span></p>
-                        <p><strong>Email :</strong> <span id="email">-</span></p>
-                        <p><strong>Membre depuis :</strong> <span id="memberSince">-</span></p>
-                    </div>
+                <!-- Ads -->
+                <div class="card animate-in" style="animation-delay:0.15s;">
+                    <div class="card-title">🎁 Gagner des cles</div>
+                    <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1rem;">Regardez des pubs pour augmenter votre limite de cles API</p>
+                    <div id="ads-list"></div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Modal publicité -->
-    <div class="modal" id="adModal">
-        <div class="modal-content">
-            <h2 id="adModalTitle">📺 Publicité</h2>
-            <div class="ad-preview" id="adPreview">
-                <img id="adImage" src="" alt="Publicité">
-            </div>
-            <div class="timer" id="adTimer">5</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="adProgress"></div>
-            </div>
-            <p class="modal-message" id="adMessage">Regardez la publicité jusqu'à la fin pour gagner +1 clé API maximum</p>
-            <button class="modal-btn" id="closeAdBtn" disabled>
-                ⏳ Patientez...
-            </button>
-        </div>
-    </div>
-    
-    <!-- Modal régénérer clé -->
-    <div class="modal" id="regenerateModal">
-        <div class="modal-content">
-            <h2 style="color: #dc2626;">🔄 Générer une nouvelle clé</h2>
-            <p style="margin: 1.5rem 0; color: #4b5563;">
-                ⚠️ L'ancienne clé ne fonctionnera plus immédiatement !<br>
-                Cette action utilisera 1 de vos <span id="modalKeysInfo">5</span> clés disponibles.
-            </p>
-            <div class="flex-row" style="justify-content: flex-end;">
-                <button class="btn btn-secondary" onclick="closeModals()">Annuler</button>
-                <button class="btn btn-danger" onclick="regenerateApiKey()">Confirmer</button>
-            </div>
-        </div>
-    </div>
-    
+
     <script>
-        // Variables globales
-        let currentAd = null;
-        let adTimer = null;
-        let timeLeft = 5;
+        // Store API key from URL params (Google auth redirect)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('api_key')) {
+            localStorage.setItem('api_key', urlParams.get('api_key'));
+            localStorage.setItem('username', urlParams.get('username') || '');
+            history.replaceState(null, '', '/dashboard');
+        }
         
-        // ============================================
-        // CHARGEMENT DES DONNÉES
-        // ============================================
+        function showToast(msg, type = 'info') {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 4000);
+        }
         
-        async function loadUserData() {
+        function copyKey() {
+            const key = document.getElementById('api-key-text').textContent;
+            navigator.clipboard.writeText(key).then(() => showToast('Cle API copiee !', 'success'));
+        }
+        
+        async function regenerateKey() {
+            const btn = document.getElementById('regen-btn');
+            btn.disabled = true; btn.textContent = 'Generation...';
+            
             try {
-                const response = await fetch('/api/keys');
-                const data = await response.json();
+                const res = await fetch('/api/keys/regenerate', { method: 'POST' });
+                const data = await res.json();
                 
-                document.getElementById('apiKey').textContent = data.api_key;
-                document.getElementById('keysGenerated').textContent = data.keys_generated;
-                document.getElementById('maxKeys').textContent = data.max_keys;
-                document.getElementById('usernameDisplay').textContent = data.username || 'Utilisateur';
-                document.getElementById('username').textContent = data.username || '-';
-                document.getElementById('email').textContent = data.email || '-';
-                document.getElementById('memberSince').textContent = data.created_at ? new Date(data.created_at).toLocaleDateString() : '-';
-                
-                // Mettre à jour la barre de progression
-                const progress = (data.keys_generated / data.max_keys) * 100;
-                document.getElementById('keyProgress').style.width = progress + '%';
-                
-                // Mettre à jour les stats
-                document.getElementById('keysUsed').textContent = data.keys_generated;
-                
-                // Gérer l'alerte
-                if (data.keys_generated >= data.max_keys - 1) {
-                    document.getElementById('keyLimitAlert').style.display = 'block';
-                    document.getElementById('usedKeys').textContent = data.keys_generated;
-                    document.getElementById('totalKeys').textContent = data.max_keys;
+                if (res.ok && data.success) {
+                    document.getElementById('api-key-text').textContent = data.api_key;
+                    document.getElementById('keys-generated').textContent = data.keys_generated;
+                    localStorage.setItem('api_key', data.api_key);
+                    showToast('Nouvelle cle generee !', 'success');
                 } else {
-                    document.getElementById('keyLimitAlert').style.display = 'none';
+                    showToast(data.error || 'Erreur', 'error');
                 }
-                
-                // Désactiver le bouton si limite atteinte
-                const regenerateBtn = document.getElementById('regenerateBtn');
-                if (data.keys_generated >= data.max_keys) {
-                    regenerateBtn.disabled = true;
-                    regenerateBtn.title = "Limite atteinte - Regardez des pubs pour augmenter";
-                } else {
-                    regenerateBtn.disabled = false;
-                }
-                
-                // Mettre à jour l'info dans le modal
-                document.getElementById('modalKeysInfo').textContent = 
-                    `${data.keys_generated}/${data.max_keys}`;
-                
-            } catch (error) {
-                console.error('Erreur chargement données:', error);
+            } catch (e) {
+                showToast('Erreur de connexion', 'error');
             }
+            
+            btn.disabled = false; btn.textContent = 'Regenerer la cle';
         }
         
-        async function loadUsageHistory() {
+        async function loadUsage() {
             try {
-                const response = await fetch('/api/usage');
-                const data = await response.json();
-                
-                const tbody = document.getElementById('usageHistory');
-                
-                if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="loading">Aucune conversation</td></tr>';
-                    document.getElementById('totalRequests').textContent = '0';
-                    document.getElementById('tokensUsed').textContent = '0';
-                    return;
-                }
-                
-                tbody.innerHTML = '';
-                let totalTokens = 0;
-                
-                data.slice(0, 10).forEach(item => {
-                    totalTokens += item.tokens || 0;
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${new Date(item.created_at).toLocaleString()}</td>
-                            <td><span class="model-tag">${item.model || 'inconnu'}</span></td>
-                            <td>${item.prompt || ''}</td>
-                            <td>${item.tokens || 0}</td>
-                        </tr>
-                    `;
-                });
-                
-                document.getElementById('totalRequests').textContent = data.length;
-                document.getElementById('tokensUsed').textContent = totalTokens;
-                
-            } catch (error) {
-                console.error('Erreur chargement historique:', error);
-            }
-        }
-        
-        async function loadKeysHistory() {
-            try {
-                const response = await fetch('/api/keys/list');
-                const data = await response.json();
-                
-                const container = document.getElementById('keysHistory');
-                
-                if (!data || data.length === 0) {
-                    container.innerHTML = '<p class="loading">Aucune ancienne clé</p>';
-                    return;
-                }
-                
-                container.innerHTML = data.map(key => `
-                    <div style="padding: 0.5rem; border-bottom: 1px solid #e2e8f0; font-family: monospace; font-size: 0.85rem;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>${key.key.substring(0, 20)}...</span>
-                            <span style="color: ${key.is_active ? '#10b981' : '#9ca3af'}">
-                                ${key.is_active ? '✅ Active' : '⏰ Ancienne'}
-                            </span>
+                const res = await fetch('/api/usage');
+                if (res.ok) {
+                    const data = await res.json();
+                    const list = document.getElementById('usage-list');
+                    
+                    if (data.length === 0) {
+                        list.innerHTML = '<div class="empty-state">Aucune utilisation. <a href="/chat">Commencez a chatter !</a></div>';
+                        return;
+                    }
+                    
+                    list.innerHTML = data.slice(0, 10).map(u => `
+                        <div class="usage-row">
+                            <span class="usage-model">${u.model}</span>
+                            <span class="usage-prompt">${u.prompt}</span>
+                            <span class="usage-tokens">${u.tokens} tok</span>
                         </div>
-                        <div style="font-size: 0.7rem; color: #6b7280;">
-                            ${new Date(key.created_at).toLocaleDateString()}
-                        </div>
-                    </div>
-                `).join('');
-                
-            } catch (error) {
-                console.error('Erreur chargement historique clés:', error);
-            }
+                    `).join('');
+                }
+            } catch (e) { console.error(e); }
         }
-        
-        // ============================================
-        // PUBLICITÉS
-        // ============================================
         
         async function loadAds() {
             try {
-                const response = await fetch('/api/ads');
-                const data = await response.json();
+                const res = await fetch('/api/ads');
+                const data = await res.json();
+                const list = document.getElementById('ads-list');
                 
-                const container = document.getElementById('adsContainer');
-                
-                if (!data.ads || data.ads.length === 0) {
-                    container.innerHTML = '<p style="color: white;">Aucune publicité disponible</p>';
-                    return;
-                }
-                
-                container.innerHTML = data.ads.map(ad => `
-                    <div class="ad-card" onclick="openAdModal(${ad.id})">
-                        <img src="${ad.image_url}" alt="${ad.title}">
-                        <h3>${ad.title}</h3>
-                        <p>${ad.description}</p>
-                        <div class="ad-footer">
-                            <span class="ad-reward">+${ad.reward} clé max</span>
-                            <span class="ad-sponsor">${ad.sponsor}</span>
+                list.innerHTML = data.ads.map(ad => `
+                    <div class="ad-card" style="margin-bottom:0.75rem;">
+                        <img src="${ad.image_url}" alt="${ad.title}" loading="lazy">
+                        <div class="ad-card-body">
+                            <h4>${ad.title}</h4>
+                            <p>${ad.description}</p>
+                            <button class="ad-watch-btn" onclick="watchAd(${ad.id})">▶ Regarder (+1 cle)</button>
                         </div>
-                        <button class="watch-btn">${ad.button_text || 'Regarder'}</button>
                     </div>
                 `).join('');
-                
-                window.adsConfig = data.config;
-                
-            } catch (error) {
-                console.error('Erreur chargement pubs:', error);
-                document.getElementById('adsContainer').innerHTML = 
-                    '<p style="color: white;">Erreur de chargement</p>';
-            }
+            } catch (e) { console.error(e); }
         }
         
-        function openAdModal(adId) {
-            fetch('/api/ads')
-                .then(res => res.json())
-                .then(data => {
-                    currentAd = data.ads.find(ad => ad.id === adId);
-                    if (!currentAd) return;
-                    
-                    document.getElementById('adModalTitle').textContent = `📺 ${currentAd.title}`;
-                    document.getElementById('adImage').src = currentAd.image_url;
-                    document.getElementById('adMessage').textContent = 
-                        `Regardez cette publicité de ${currentAd.sponsor} pour gagner +1 clé API maximum`;
-                    
-                    document.getElementById('adModal').classList.add('active');
-                    
-                    const closeBtn = document.getElementById('closeAdBtn');
-                    closeBtn.disabled = true;
-                    closeBtn.className = 'modal-btn';
-                    closeBtn.textContent = `⏳ Regardez la pub (5s)`;
-                    
-                    timeLeft = window.adsConfig?.watch_duration || 5;
-                    updateAdTimer();
-                    
-                    adTimer = setInterval(() => {
-                        timeLeft--;
-                        updateAdTimer();
-                        
-                        if (timeLeft <= 0) {
-                            clearInterval(adTimer);
-                            completeAd();
-                        }
-                    }, 1000);
-                });
-        }
-        
-        function updateAdTimer() {
-            document.getElementById('adTimer').textContent = timeLeft;
-            const totalTime = window.adsConfig?.watch_duration || 5;
-            const progress = ((totalTime - timeLeft) / totalTime) * 100;
-            document.getElementById('adProgress').style.width = `${progress}%`;
-            
-            const closeBtn = document.getElementById('closeAdBtn');
-            closeBtn.textContent = `⏳ Regardez la pub (${timeLeft}s)`;
-        }
-        
-        function completeAd() {
-            const closeBtn = document.getElementById('closeAdBtn');
-            closeBtn.disabled = false;
-            closeBtn.className = 'modal-btn modal-btn-success';
-            closeBtn.textContent = '✅ Obtenir +1 clé max';
-            closeBtn.onclick = claimAdReward;
-        }
-        
-        async function claimAdReward() {
-            if (!currentAd) return;
+        async function watchAd(adId) {
+            showToast('Visionnage en cours...', 'info');
+            await new Promise(r => setTimeout(r, 5000));
             
             try {
-                const response = await fetch('/api/ads/reward', {
+                const res = await fetch('/api/ads/reward', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        adId: currentAd.id
-                    })
+                    body: JSON.stringify({ adId })
                 });
+                const data = await res.json();
                 
-                const data = await response.json();
-                
-                if (response.ok) {
-                    alert(`🎉 ${data.message}`);
-                    closeAdModal();
-                    loadUserData(); // Recharger les données
+                if (res.ok && data.success) {
+                    document.getElementById('max-keys').textContent = data.new_max_keys;
+                    showToast('+1 cle API maximum !', 'success');
                 } else {
-                    alert('❌ Erreur: ' + data.error);
+                    showToast(data.error || 'Erreur', 'error');
                 }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('❌ Erreur de connexion');
+            } catch (e) {
+                showToast('Erreur', 'error');
             }
         }
         
-        function closeAdModal() {
-            clearInterval(adTimer);
-            document.getElementById('adModal').classList.remove('active');
-            currentAd = null;
-        }
-        
-        // ============================================
-        // GESTION DES CLÉS API
-        // ============================================
-        
-        function copyApiKey() {
-            const key = document.getElementById('apiKey').textContent;
-            if (key && key !== 'Chargement...') {
-                navigator.clipboard.writeText(key);
-                alert('✅ Clé API copiée !');
-            }
-        }
-        
-        function showRegenerateModal() {
-            document.getElementById('regenerateModal').classList.add('active');
-        }
-        
-        function closeModals() {
-            document.querySelectorAll('.modal').forEach(modal => {
-                modal.classList.remove('active');
-            });
-        }
-        
-        async function regenerateApiKey() {
-            try {
-                const response = await fetch('/api/keys/regenerate', { 
-                    method: 'POST' 
-                });
-                const data = await response.json();
-                
-                if (response.ok) {
-                    document.getElementById('apiKey').textContent = data.api_key;
-                    closeModals();
-                    alert(data.message);
-                    loadUserData(); // Recharger
-                    loadKeysHistory(); // Recharger l'historique
-                } else {
-                    alert(data.error);
-                }
-            } catch (error) {
-                console.error('Erreur:', error);
-                alert('❌ Erreur de connexion');
-            }
-        }
-        
-        // ============================================
-        // INITIALISATION
-        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
+            loadUsage();
             loadAds();
-            loadUserData();
-            loadUsageHistory();
-            loadKeysHistory();
         });
     </script>
 </body>

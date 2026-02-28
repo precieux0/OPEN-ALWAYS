@@ -4,64 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FAQ - Open Always</title>
+    <link rel="stylesheet" href="/static/css/shared.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .header { background: linear-gradient(135deg, #2563EB 0%, #1E40AF 100%); color: white; padding: 2rem; }
-        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
-        .faq-item { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .question { color: #2563EB; font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; }
-        .answer { line-height: 1.6; color: #4b5563; }
-        .creator-section { background: white; border-radius: 8px; padding: 2rem; margin-top: 2rem; text-align: center; }
-        .creator-name { font-size: 2rem; color: #2563EB; margin: 1rem 0; }
-        .creator-bio { max-width: 600px; margin: 0 auto; line-height: 1.8; }
-        .back-btn { display: inline-block; margin-top: 2rem; padding: 0.75rem 1.5rem; background: #2563EB; color: white; text-decoration: none; border-radius: 6px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 3rem 1.5rem; }
+        .page-header { text-align: center; margin-bottom: 3rem; }
+        .page-header h1 { font-size: 2.5rem; letter-spacing: -0.03em; margin-bottom: 0.5rem; }
+        .page-header p { color: var(--text-muted); font-size: 1rem; }
+        
+        .faq-item {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: var(--radius-md); margin-bottom: 0.75rem;
+            overflow: hidden; transition: var(--transition);
+        }
+        .faq-item:hover { border-color: var(--border-hover); }
+        
+        .faq-question {
+            padding: 1.25rem 1.5rem; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            font-weight: 600; font-size: 0.95rem;
+        }
+        .faq-question .arrow { transition: transform 0.3s; color: var(--text-muted); }
+        .faq-item.open .faq-question .arrow { transform: rotate(180deg); }
+        
+        .faq-answer {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+            padding: 0 1.5rem;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px; padding: 0 1.5rem 1.25rem;
+        }
+        .faq-answer p { color: var(--text-secondary); line-height: 1.7; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>❓ Foire Aux Questions</h1>
-        <p>Tout savoir sur Open Always et son créateur</p>
-    </div>
-    
+    <nav class="navbar">
+        <a href="/" class="logo"><div class="logo-icon">⚡</div> Open Always</a>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/docs">Docs</a>
+            <a href="/auth/login" class="nav-btn">Connexion</a>
+        </div>
+    </nav>
+
     <div class="container">
-        <div class="faq-item">
-            <div class="question">🤔 Qui est Précieux Okitakoy ?</div>
-            <div class="answer">
-                Précieux Okitakoy est un jeune ingénieur talentueux, passionné par l'intelligence artificielle 
-                et les technologies open source. Il est le fondateur et CEO de <strong>Okitakoy Inc.</strong>, 
-                une entreprise innovante spécialisée dans le développement de solutions IA accessibles à tous.
-            </div>
+        <div class="page-header animate-in">
+            <h1>Questions frequentes</h1>
+            <p>Tout ce que vous devez savoir sur Open Always</p>
         </div>
         
-        <div class="faq-item">
-            <div class="question">🚀 Qu'est-ce que Okitakoy Inc. ?</div>
-            <div class="answer">
-                Okitakoy Inc. est une agence/société technologique fondée par Précieux Okitakoy. 
-                Leur mission est de démocratiser l'accès à l'intelligence artificielle en créant 
-                des outils puissants mais simples d'utilisation. Open Always est leur projet phare.
-            </div>
+        <div class="faq-item animate-in" style="animation-delay:0.1s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">Qu'est-ce qu'Open Always ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>Open Always est une plateforme gratuite qui vous permet de discuter avec plus de 10 modeles d'IA differents, incluant GPT-4, Claude, Gemini, Llama et plus. Creee par Precieux Okitakoy (Okitakoy Inc.).</p></div>
         </div>
         
-        <div class="faq-item">
-            <div class="question">💡 Pourquoi "Open Always" ?</div>
-            <div class="answer">
-                Le nom reflète la philosophie du projet : toujours ouvert, accessible et transparent. 
-                Nous croyons que l'IA doit être accessible à tous, pas seulement aux grandes entreprises.
-            </div>
+        <div class="faq-item animate-in" style="animation-delay:0.15s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">C'est vraiment gratuit ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>Oui ! Open Always est 100% gratuit avec des messages illimites. Vous obtenez 5 cles API a l'inscription et pouvez en gagner plus en regardant des publicites.</p></div>
         </div>
         
-        <div class="creator-section">
-            <h2>👨‍💻 Rencontrez le créateur</h2>
-            <div class="creator-name">Précieux Okitakoy</div>
-            <div class="creator-bio">
-                Ingénieur IA & Fondateur de Okitakoy Inc.<br><br>
-                Précieux a commencé à coder à l'âge de 15 ans. Aujourd'hui, à travers Okitakoy Inc., 
-                il développe des solutions IA innovantes pour aider les développeurs du monde entier 
-                à intégrer facilement l'IA dans leurs projets.
-            </div>
-            <a href="/" class="back-btn">← Retour à l'accueil</a>
+        <div class="faq-item animate-in" style="animation-delay:0.2s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">Comment obtenir une cle API ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>Creez un compte et une cle API sera automatiquement generee. Vous pouvez la trouver dans votre Dashboard. Utilisez-la avec l'en-tete Authorization: Bearer VOTRE_CLE.</p></div>
         </div>
+        
+        <div class="faq-item animate-in" style="animation-delay:0.25s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">Quels modeles sont disponibles ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>GPT-4, GPT-3.5 Turbo, Claude 3, Claude 3 Opus, Gemini Pro, Gemini Ultra, Llama 3.1, Llama 3.1 70B, Mistral Large, DeepSeek V3, Cohere Command et notre propre Okitakoy AI.</p></div>
+        </div>
+        
+        <div class="faq-item animate-in" style="animation-delay:0.3s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">Comment fonctionne l'authentification ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>Vous pouvez vous inscrire par email (avec verification OTP) ou via Google OAuth. Une fois connecte, votre session reste active et votre cle API est utilisable dans vos projets.</p></div>
+        </div>
+        
+        <div class="faq-item animate-in" style="animation-delay:0.35s" onclick="this.classList.toggle('open')">
+            <div class="faq-question">L'API est-elle compatible REST ? <span class="arrow">▼</span></div>
+            <div class="faq-answer"><p>Oui, l'API est RESTful. Envoyez un POST a /api/chat avec votre message et le modele souhaite. Consultez la documentation pour tous les endpoints.</p></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Open Always &copy; 2026 - <a href="https://github.com/precieux0">Precieux Okitakoy</a></p>
     </div>
 </body>
 </html>
