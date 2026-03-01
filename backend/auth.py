@@ -308,7 +308,7 @@ def logout():
 
 @auth_bp.route('/test-email')
 def test_email():
-    success, message = email_service.send_test("dcmakubungu@gmail.com")
+    success, message = email_service.send_test("test@freeinternet.io")
     if success:
         return jsonify({'success': True, 'message': 'Email de test envoye'})
     return jsonify({'error': message}), 500
