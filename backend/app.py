@@ -16,9 +16,11 @@ from backend.google_service import init_google, get_google_client, google_client
 from backend.config import Config
 from backend.ads_config import get_active_ads
 
+# Configuration logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Initialisation des services
 chat_service = ChatService()
 
 app = Flask(__name__, 
@@ -26,6 +28,9 @@ app = Flask(__name__,
             template_folder='../frontend/templates')
 app.config.from_object(Config)
 
+# ============================================
+# OPTIMISATION MÉMOIRE
+# ============================================
 app.config['SQLALCHEMY_POOL_SIZE'] = 2
 app.config['SQLALCHEMY_MAX_OVERFLOW'] = 3
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
@@ -34,13 +39,29 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
     'pool_timeout': 10,
 }
 
+# ============================================
+# INITIALISATIONS
+# ============================================
+logger.info("=" * 50)
+logger.info("DÉMARRAGE DE L'APPLICATION")
+logger.info("=" * 50)
+
 db.init_app(app)
+logger.info("✅ Base de données initialisée")
+
 email_service.init_app(app)
+logger.info("✅ Service email initialisé")
+
+logger.info("Initialisation de Google OAuth...")
 init_google(app)
+logger.info(f"google_client global après init: {google_client}")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'login_page'
+login_manager.login_view = 'auth.login'  # ← CORRIGÉ : utilise le blueprint
+login_manager.login_message = "Veuillez vous connecter pour accéder à cette page."
+login_manager.session_protection = 'basic'
+logger.info("✅ Login manager initialisé")
 
 app.register_blueprint(auth_bp, url_prefix='/auth')
 
@@ -54,19 +75,25 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
+    """Page d'accueil"""
     return render_template('index.html', models=chat_service.get_models())
 
 @app.route('/faq')
 def faq():
+    """Page FAQ"""
     return render_template('faq.html', creator='Precieux Okitakoy')
 
 @app.route('/docs')
 def documentation():
+    """Page documentation"""
     return render_template('docs.html')
 
 @app.route('/chat', methods=['GET'])
 def chat_page():
+    """Page de chat avec vérification session ET token"""
+    
     if current_user and current_user.is_authenticated:
+        logger.info(f"Accès chat par session: {current_user.username}")
         return render_template('chat.html')
     
     token = request.args.get('token')
@@ -74,25 +101,31 @@ def chat_page():
         user = KeysService.verify_key(f"Bearer {token}")
         if user:
             login_user(user, remember=True)
+            logger.info(f"Accès chat par token URL: {user.username}")
             return render_template('chat.html')
     
-    return redirect('/auth/login')
+    logger.warning("Accès chat non autorisé, redirection vers login")
+    return redirect(url_for('auth.login'))  # ← Utilise le blueprint
 
 @app.route('/auth/login', methods=['GET'])
 def login_page():
+    """Affiche la page de connexion"""
     return render_template('login.html')
 
 @app.route('/auth/register', methods=['GET'])
 def register_page():
+    """Affiche la page d'inscription"""
     return render_template('login.html')
 
 @app.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
+    """Tableau de bord utilisateur"""
+    logger.info(f"Accès dashboard: {current_user.username}")
     return render_template('dashboard.html', user=current_user)
 
 # ============================================
-# API MODELES
+# API MODÈLES
 # ============================================
 
 @app.route('/api/models', methods=['GET'])
@@ -100,11 +133,13 @@ def get_models():
     return jsonify(chat_service.get_models())
 
 # ============================================
-# API CHAT - FIXED AUTH
+# API CHAT
 # ============================================
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    """Chat avec authentification par API Key"""
+    
     user = None
     
     if current_user and current_user.is_authenticated:
@@ -151,6 +186,7 @@ def chat():
 
 @app.route('/api/me', methods=['GET'])
 def check_auth():
+    """Vérifie l'authentification de l'utilisateur"""
     if current_user and current_user.is_authenticated:
         return jsonify({
             'authenticated': True,
@@ -173,11 +209,12 @@ def check_auth():
     return jsonify({'authenticated': False}), 401
 
 # ============================================
-# API CLES
+# API CLÉS
 # ============================================
 
 @app.route('/api/keys', methods=['GET'])
 def get_api_keys():
+    """Retourne la clé API active et les stats"""
     user = None
     if current_user and current_user.is_authenticated:
         user = current_user
@@ -202,6 +239,7 @@ def get_api_keys():
 @app.route('/api/keys/list', methods=['GET'])
 @login_required
 def list_api_keys():
+    """Liste toutes les clés API de l'utilisateur"""
     keys = KeysService.get_user_keys(current_user.id)
     return jsonify([{
         'key': k.key,
@@ -212,6 +250,7 @@ def list_api_keys():
 @app.route('/api/keys/regenerate', methods=['POST'])
 @login_required
 def regenerate_api_key():
+    """Génère une nouvelle clé API (si dans la limite)"""
     if not hasattr(current_user, 'api_keys_generated'):
         current_user.api_keys_generated = 1
     if not hasattr(current_user, 'max_api_keys'):
@@ -245,6 +284,7 @@ def regenerate_api_key():
 @app.route('/api/usage', methods=['GET'])
 @login_required
 def get_usage():
+    """Historique d'utilisation"""
     usage = APIUsage.query.filter_by(user_id=current_user.id)\
         .order_by(APIUsage.created_at.desc())\
         .limit(100).all()
@@ -258,13 +298,14 @@ def get_usage():
     } for u in usage])
 
 # ============================================
-# API ADS
+# API PUBLICITÉS
 # ============================================
 
 user_ad_views = {}
 
 @app.route('/api/ads', methods=['GET'])
 def get_ads():
+    """Retourne la liste des publicités disponibles"""
     return jsonify({
         'ads': get_active_ads(),
         'config': {'watch_duration': 5, 'default_reward': 1}
@@ -273,6 +314,7 @@ def get_ads():
 @app.route('/api/ads/reward', methods=['POST'])
 @login_required
 def claim_ad_reward():
+    """Réclamer une récompense après avoir regardé une pub"""
     from datetime import date
     
     data = request.json
@@ -293,9 +335,11 @@ def claim_ad_reward():
         current_user.max_api_keys += 1
         db.session.commit()
         user_ad_views[user_key] = True
+        logger.info(f"✅ +1 clé max pour {current_user.username}")
         return jsonify({'success': True, 'new_max_keys': current_user.max_api_keys})
     except Exception as e:
         db.session.rollback()
+        logger.error(f"Erreur pub: {e}")
         return jsonify({"error": str(e)}), 500
 
 # ============================================
@@ -306,26 +350,74 @@ def claim_ad_reward():
 def api_docs():
     return jsonify({
         'name': 'Open Always API',
+        'version': '1.0',
         'base_url': request.host_url.rstrip('/'),
-        'authentication': {'type': 'Bearer Token'},
+        'authentication': {'type': 'Bearer Token', 'header': 'Authorization: Bearer YOUR_API_KEY'},
         'endpoints': {
-            'chat': '/api/chat (POST)',
-            'keys': '/api/keys (GET)',
-            'regenerate': '/api/keys/regenerate (POST)'
+            'chat': {'method': 'POST', 'url': '/api/chat', 'description': 'Envoyer un message à l\'IA'},
+            'models': {'method': 'GET', 'url': '/api/models', 'description': 'Liste des modèles disponibles'},
+            'keys': {'method': 'GET', 'url': '/api/keys', 'description': 'Obtenir sa clé API'},
+            'regenerate': {'method': 'POST', 'url': '/api/keys/regenerate', 'description': 'Générer une nouvelle clé'},
+            'usage': {'method': 'GET', 'url': '/api/usage', 'description': 'Historique d\'utilisation'},
+            'ads': {'method': 'GET', 'url': '/api/ads', 'description': 'Publicités disponibles'}
         }
     })
 
 # ============================================
-# DEMARRAGE
+# ROUTES DE DEBUG
+# ============================================
+
+@app.route('/debug/login-view')
+def debug_login_view():
+    """Affiche la configuration de login_view"""
+    return f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Debug Login View</title>
+        <style>
+            body {{ font-family: Arial; padding: 2rem; background: #f0f2f5; }}
+            .container {{ max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; padding: 2rem; }}
+            .success {{ color: #10b981; }}
+            .info {{ background: #f8fafc; padding: 1rem; border-radius: 8px; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🔍 Debug Login View</h1>
+            <div class="info">
+                <p><strong>login_manager.login_view =</strong> {login_manager.login_view}</p>
+                <p><strong>Route pour auth.login:</strong> {url_for('auth.login')}</p>
+                <p><strong>Route pour login_page:</strong> {url_for('login_page') if has_url_for('login_page') else 'N/A'}</p>
+            </div>
+            <p class="success">✅ Configuration correcte !</p>
+            <a href="/" class="btn">Retour</a>
+        </div>
+    </body>
+    </html>
+    """
+
+def has_url_for(endpoint):
+    """Vérifie si un endpoint existe"""
+    try:
+        url_for(endpoint)
+        return True
+    except:
+        return False
+
+# ============================================
+# DÉMARRAGE
 # ============================================
 if __name__ == '__main__':
     with app.app_context():
         try:
             db.create_all()
-            print("Tables creees/verifiees")
+            print("✅ Tables créées/vérifiées")
         except Exception as e:
-            print(f"Erreur: {e}")
+            print(f"⚠️ Erreur: {e}")
     
+    print("🚀 Démarrage de l'application...")
     app.run(debug=False, host='0.0.0.0', port=5000)
 
+# Pour Gunicorn
 application = app
